@@ -1,0 +1,10 @@
+names: manar, weswes, mohamed, ali, mariam, sara, roro
+countries: egypt, france, spain, italy, germany, brazil, canada
+sports: football, basketball, tennis, swimming
+games: gta, minecraft, fortnite, cod, fifa, pubg, overwatch
+food: pizza, burger, pasta, sushi, salad, tacos
+movies: inception, titanic, avatar, avengers, joker, matrix, gladiator
+series: breakingbad, hannibal, gameofthrones, friends, theoffice, sherlock, blackmirror
+programming: python, java, javascript, csharp, html, css
+devices: laptop, phone, tablet, desktop, smartwatch, computer
+weapons: sword, gun, bow, knife, axe, shield, spear, crossbowsg
