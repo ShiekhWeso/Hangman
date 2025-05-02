@@ -1,13 +1,28 @@
 # Guess the word game
 # add time limit for each word if not the playes will lose a attempt
 # Color-coded Feedback
+import sys
 import threading
 import time
 import random
 
-def countdown(timeout, chosen_word):
-    pass
+guess_made = None
 
+def countdown(timeout, chosen_word):
+    global guess_made
+    
+    sys.stdout.write("You have ")
+    sys.stdout.flush()
+    
+    for remaining in range(timeout, 0, -1):
+        if guess_made and guess_made in chosen_word:
+            return
+        sys.stdout.write(f"\rYou have {remaining} seconds left to guess... ")
+        sys.stdout.flush()
+        time.sleep(1)
+    
+    print("\nTime is up! You lost an attempt.")
+    
 def input_with_timeout(prompt, timeout, choosen_word):
     pass
     
