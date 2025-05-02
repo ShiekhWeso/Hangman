@@ -11,20 +11,45 @@ guess_made = None
 def countdown(timeout, chosen_word):
     global guess_made
     
-    sys.stdout.write("You have ")
+    sys.stdout.write(f"\rYou have {timeout} seconds left to guess... ")
     sys.stdout.flush()
     
     for remaining in range(timeout, 0, -1):
-        if guess_made and guess_made in chosen_word:
+        if guess_made:
             return
-        sys.stdout.write(f"\rYou have {remaining} seconds left to guess... ")
-        sys.stdout.flush()
+        
+        if not guess_made:
+            sys.stdout.write(f"\rYou have {remaining} seconds left to guess... ")
+            sys.stdout.flush()
+        
         time.sleep(1)
     
-    print("\nTime is up! You lost an attempt.")
+    if guess_made is None:
+        print("\nTime is up! You lost an attempt.")
     
-def input_with_timeout(prompt, timeout, choosen_word):
-    pass
+def input_with_timeout(prompt, timeout, chosen_word):
+    global guess_made
+    guess_made = None
+    
+    print(prompt)
+    
+    def get_input():
+        global guess_made
+        guess_made = input().lower().strip()
+        
+    input_thread = threading.Thread(target=get_input)
+    input_thread.daemon = True
+    input_thread.start()
+    
+    countdown_thread = threading.Thread(target=countdown, args=(timeout, chosen_word))
+    countdown_thread.start()
+    
+    input_thread.join(timeout)
+    countdown_thread.join()
+    
+    if guess_made is None or guess_made not in chosen_word:
+        return None
+    return guess_made
     
 def load_game_data(game_data_file):
     game_data = {}
@@ -113,7 +138,7 @@ def hangman_game(dic):
         
         while True:
             # intergrating the time limit for each word
-            guessed_letter = input_with_timeout("Enter the letter: ", 15)
+            guessed_letter = input_with_timeout("Enter the letter: ", 15, choosen_word)
             if guessed_letter is None:
                 print("You didn't enter a letter in time.")
                 attempts -= 1
