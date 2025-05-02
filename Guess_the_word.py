@@ -5,39 +5,11 @@ import threading
 import time
 import random
 
-def input_with_timeout(prompt, timeout):
-    global guess_made
-    guess_made = False
-    user_input = [""]
-    
-    print(prompt)
-    
-    def get_input():
-        global guess_made
-        user_input[0] = input().lower().strip()
-        guess_made = True
-        
-    input_thread = threading.Thread(target=get_input)
-    input_thread.daemon = True
-    input_thread.start()
-    
-    def countdown():
-        for remaining in range(timeout, 0, -1):
-            if guess_made:
-                return
-            print(f"\rYou have {remaining} seconds left to guess...", end="")
-            time.sleep(1)
-        print("\nTime is up! You lost a attempt.")
-        
-    countdown_thread = threading.Thread(target=countdown)
-    countdown_thread.start()
-    input_thread.join(timeout)
-    countdown_thread.join()
-    
-    if not guess_made:
-        return None
-        
-    return user_input[0]
+def countdown(timeout, chosen_word):
+    pass
+
+def input_with_timeout(prompt, timeout, choosen_word):
+    pass
     
 def load_game_data(game_data_file):
     game_data = {}
