@@ -117,8 +117,26 @@ def hangman_game(dic):
         print(f"The word is: {" ".join(unknown_word)}")
         
         while True:
-            guessed_letter = input("Enter the letter: ").lower().strip()
-            if guessed_letter == "/hint":
+            # intergrating the time limit for each word
+            guessed_letter = input_with_timeout("Enter the letter: ", 10)
+            if guessed_letter is None:
+                print("You didn't enter a letter in time.")
+                attempts -= 1
+                print(f"You have {attempts} attempts left.\n")
+                if attempts == 0:
+                    print(f"Game over! The word was: '{choosen_word}'.")
+                    print(f"Game over! your score is {score} pts.")
+                    break
+                continue
+            elif guessed_letter == "/commands":
+                print("Available commands: (/hint, /exit, /players ,/commands,)")
+                continue
+            elif guessed_letter == "/players":
+                print("The players and their scores are:")
+                for player, score in players.items():
+                    print(f"{player}: {score} pts")
+                continue
+            elif guessed_letter == "/hint":
                 if attempts > 1 or score > 20:
                     attempts_dedution = {"easy": 1, "medium": 2, "hard": 3}
                     if attempts > attempts_dedution[difficulty]:
@@ -136,19 +154,16 @@ def hangman_game(dic):
                 else:
                     print("You don't have enough attempts or points to use a hint.")    
                 continue
-            
-            if guessed_letter == "/exit":
+            elif guessed_letter == "/exit":
                 print("Exiting the game. Thank you for playing!")
                 return
-                
-            if len(guessed_letter) != 1 or guessed_letter.isalpha() == False:
+            elif len(guessed_letter) != 1 or guessed_letter.isalpha() == False:
                 print("Invalid input! Please enter a single alphabetic letter.\n")
                 continue
-            if guessed_letter in guessed_letters:
+            elif guessed_letter in unknown_word:
                 print(f"You already guessed that letter! Guessed letters: {', '.join(guessed_letters)}")
                 continue
             guessed_letters.append(guessed_letter)
-            guessed_letters.append(choosen_word[hint_index])
             
             if guessed_letter in choosen_word:
                 for idx, char in enumerate(choosen_word):
