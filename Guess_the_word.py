@@ -8,26 +8,35 @@ import random
 def input_with_timeout(prompt, timeout):
     global guess_made
     guess_made = False
-    user_input = [None]
+    user_input = [""]
+    stop_thread = [False]
     
     def get_input():
         global guess_made
-        user_input[0] = input(prompt).lower().strip()
-        guess_made = True
+        while not stop_thread[0]:
+            try:
+                user_input[0] = input().lower().strip()
+                guess_made = True
+                stop_thread[0] = True
+            except:
+                pass
+    input_thread = threading.Thread(target=get_input)
+    input_thread.daemon = True
+    input_thread.start()
     
-    intput_thread = threading.Thread(target=get_input)
-    intput_thread.start()
-    
+    print(prompt)
     for remaining in range(timeout, 0, -1):
         if guess_made:
             break
         print(f"\rYou have {remaining} seconds left to guess...", end="")
         time.sleep(1)
     
-    intput_thread.join(0)
+    stop_thread[0] = True
+    input_thread.join(timeout=0.1)
     
     if not guess_made:
         print("\nTime's up! You lost a attempt.")
+        return None
         
     return user_input[0]
     
@@ -118,7 +127,7 @@ def hangman_game(dic):
         
         while True:
             # intergrating the time limit for each word
-            guessed_letter = input_with_timeout("Enter the letter: ", 10)
+            guessed_letter = input_with_timeout("Enter the letter: ", 15)
             if guessed_letter is None:
                 print("You didn't enter a letter in time.")
                 attempts -= 1
@@ -126,7 +135,7 @@ def hangman_game(dic):
                 if attempts == 0:
                     print(f"Game over! The word was: '{choosen_word}'.")
                     print(f"Game over! your score is {score} pts.")
-                    break
+                    return
                 continue
             elif guessed_letter == "/commands":
                 print("Available commands: (/hint, /exit, /players ,/commands,)")
