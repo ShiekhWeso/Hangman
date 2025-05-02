@@ -1,5 +1,5 @@
 # Guess the word game
-# add time limit for each word if not the playes will lose a point
+# add time limit for each word if not the playes will lose a attempt
 # Color-coded Feedback
 import threading
 import time
@@ -9,33 +9,32 @@ def input_with_timeout(prompt, timeout):
     global guess_made
     guess_made = False
     user_input = [""]
-    stop_thread = [False]
+    
+    print(prompt)
     
     def get_input():
         global guess_made
-        while not stop_thread[0]:
-            try:
-                user_input[0] = input().lower().strip()
-                guess_made = True
-                stop_thread[0] = True
-            except:
-                pass
+        user_input[0] = input().lower().strip()
+        guess_made = True
+        
     input_thread = threading.Thread(target=get_input)
     input_thread.daemon = True
     input_thread.start()
     
-    print(prompt)
-    for remaining in range(timeout, 0, -1):
-        if guess_made:
-            break
-        print(f"\rYou have {remaining} seconds left to guess...", end="")
-        time.sleep(1)
-    
-    stop_thread[0] = True
-    input_thread.join(timeout=0.1)
+    def countdown():
+        for remaining in range(timeout, 0, -1):
+            if guess_made:
+                return
+            print(f"\rYou have {remaining} seconds left to guess...", end="")
+            time.sleep(1)
+        print("\nTime is up! You lost a attempt.")
+        
+    countdown_thread = threading.Thread(target=countdown)
+    countdown_thread.start()
+    input_thread.join(timeout)
+    countdown_thread.join()
     
     if not guess_made:
-        print("\nTime's up! You lost a attempt.")
         return None
         
     return user_input[0]
