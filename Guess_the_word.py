@@ -1,55 +1,8 @@
 # Guess the word game
-# add time limit for each word if not the playes will lose a attempt
 # Color-coded Feedback
 import sys
-import threading
-import time
 import random
-
-guess_made = None
-
-def countdown(timeout, chosen_word):
-    global guess_made
-    
-    sys.stdout.write(f"\rYou have {timeout} seconds left to guess... ")
-    sys.stdout.flush()
-    
-    for remaining in range(timeout, 0, -1):
-        if guess_made:
-            return
-        
-        if not guess_made:
-            sys.stdout.write(f"\rYou have {remaining} seconds left to guess... ")
-            sys.stdout.flush()
-        
-        time.sleep(1)
-    
-    if guess_made is None:
-        print("\nTime is up! You lost an attempt.")
-    
-def input_with_timeout(prompt, timeout, chosen_word):
-    global guess_made
-    guess_made = None
-    
-    print(prompt)
-    
-    def get_input():
-        global guess_made
-        guess_made = input().lower().strip()
-        
-    input_thread = threading.Thread(target=get_input)
-    input_thread.daemon = True
-    input_thread.start()
-    
-    countdown_thread = threading.Thread(target=countdown, args=(timeout, chosen_word))
-    countdown_thread.start()
-    
-    input_thread.join(timeout)
-    countdown_thread.join()
-    
-    if guess_made is None or guess_made not in chosen_word:
-        return None
-    return guess_made
+import asyncio
     
 def load_game_data(game_data_file):
     game_data = {}
@@ -138,17 +91,8 @@ def hangman_game(dic):
         
         while True:
             # intergrating the time limit for each word
-            guessed_letter = input_with_timeout("Enter the letter: ", 15, choosen_word)
-            if guessed_letter is None:
-                print("You didn't enter a letter in time.")
-                attempts -= 1
-                print(f"You have {attempts} attempts left.\n")
-                if attempts == 0:
-                    print(f"Game over! The word was: '{choosen_word}'.")
-                    print(f"Game over! your score is {score} pts.")
-                    return
-                continue
-            elif guessed_letter == "/commands":
+            guessed_letter = input("Enter the letter: ")
+            if guessed_letter == "/commands":
                 print("Available commands: (/hint, /exit, /players ,/commands,)")
                 continue
             elif guessed_letter == "/players":
