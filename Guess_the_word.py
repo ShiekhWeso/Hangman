@@ -4,6 +4,20 @@ import sys
 import random
 import asyncio
     
+# Utility: An async version of input that runs input() in an executor.
+async def async_input() -> str:
+    loop = asyncio.get_running_loop()
+    return await loop.run_in_executor(None, lambda: input(""))    
+    
+# Countdown timer task that prints the remaining seconds.
+async def countdown(timeout: int):
+    for remaining in range(timeout, 0, -1):
+        sys.stdout.write(f"\rYou have {remaining} seconds left to guess... Enter the letter: ")
+        sys.stdout.flush()
+        await asyncio.sleep(1)
+    sys.stdout.write("\n")
+    sys.stdout.flush()    
+    
 def load_game_data(game_data_file):
     game_data = {}
     try:
