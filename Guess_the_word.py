@@ -18,6 +18,32 @@ async def countdown(timeout: int):
     sys.stdout.write("\n")
     sys.stdout.flush()    
     
+# Input with timeout: runs the countdown and input concurrently.
+async def input_with_timeout(prompt: str, timeout: int, chosen_word: str) -> str:
+    guess = None
+
+    # Create the countdown task.
+    countdown_task = asyncio.create_task(countdown(timeout))
+
+    try:
+        # Wait for user input using asyncio.wait_for; if no input is provided in time, a TimeoutError is raised.
+        guess = await asyncio.wait_for(async_input(), timeout=timeout)
+        guess = guess.lower().strip()
+    except asyncio.TimeoutError:
+        print("\nTime is up! You lost an attempt.")
+    finally:
+        # Cancel the countdown task if still running.
+        countdown_task.cancel()
+        try:
+            await countdown_task
+        except asyncio.CancelledError:
+            pass
+
+    # Ensure the guess is valid for further processing:
+    if not guess:
+        return None
+    return guess    
+
 def load_game_data(game_data_file):
     game_data = {}
     try:
