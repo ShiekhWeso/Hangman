@@ -75,7 +75,7 @@ def save_players_data(players_data_file, dic):
         for name, score in dic.items():
             file.write(f"{name}: {score}\n")
 
-def hangman_game(dic):
+async def hangman_game(dic):
     chosen_words = []
     score = 0
     
@@ -116,22 +116,28 @@ def hangman_game(dic):
     categories = [i for i in words.keys()]    
     while attempts > 0:
         
-        choosen_category = random.choice(categories)
-        print(f"\nThe category choosen for you is:\n{'='*20}\n*{choosen_category}*\n{'='*20}")
-        remaining_words = [word for word in dic[choosen_category] if word not in chosen_words]
+        chosen_category = random.choice(categories)
+        print(f"\nThe category choosen for you is:\n{'='*20}\n*{chosen_category}*\n{'='*20}")
+        remaining_words = [word for word in dic[chosen_category] if word not in chosen_words]
         if not remaining_words:
-            print(f"All words in the category '{choosen_category}' have been guessed!")
+            print(f"All words in the category '{chosen_category}' have been guessed!")
             continue
 
-        choosen_word = random.choice(remaining_words)
-        unknown_word = ["_"] * len(choosen_word)
+        chosen_word = random.choice(remaining_words)
+        unknown_word = ["_"] * len(chosen_word)
         guessed_letters = []
         
         print(f"The word is: {" ".join(unknown_word)}")
         
         while True:
-            # intergrating the time limit for each word
-            guessed_letter = input("Enter the letter: ")
+            # Using async input with timeout for each guess.
+            guessed_letter = await input_with_timeout("Enter the letter: ", 15, chosen_word)
+            if guessed_letter is None:
+                print("You didn't enter a letter in time.")
+                attempts -= 1
+                print(f"You have {attempts} attempts left.\n")
+                if attempts == 0:
+                    print(f"Game over! the the word was: '{chosen_word}'\nYour score is: {score} pts.")
             if guessed_letter == "/commands":
                 print("Available commands: (/hint, /exit, /players ,/commands,)")
                 continue
@@ -153,7 +159,7 @@ def hangman_game(dic):
                     unrevealed_letters = [i for i, char in enumerate(unknown_word) if char == "_"]
                     if unrevealed_letters:
                         hint_index = random.choice(unrevealed_letters)
-                        unknown_word[hint_index] = choosen_word[hint_index]
+                        unknown_word[hint_index] = chosen_word[hint_index]
                         print(f"Hint: The word now is {' '.join(unknown_word)}\n")
                 else:
                     print("You don't have enough attempts or points to use a hint.")    
@@ -169,8 +175,8 @@ def hangman_game(dic):
                 continue
             guessed_letters.append(guessed_letter)
             
-            if guessed_letter in choosen_word:
-                for idx, char in enumerate(choosen_word):
+            if guessed_letter in chosen_word:
+                for idx, char in enumerate(chosen_word):
                     if char == guessed_letter:
                         unknown_word[idx] = guessed_letter        
                 print(f"The word now is: {" ".join(unknown_word)}\n")        
@@ -178,16 +184,16 @@ def hangman_game(dic):
                 attempts -= 1
                 print(f"Wrong guess! You have {attempts} attempts left.\n")    
                 if attempts == 0:
-                    print(f"Game over! The word was: '{choosen_word}'.")
+                    print(f"Game over! The word was: '{chosen_word}'.")
                     print(f"Game over! your score is {score} pts.")
                     break
                 
-            if "".join(unknown_word) == choosen_word:
+            if "".join(unknown_word) == chosen_word:
                 score += 12
                 attempts = intitial_attempts
                 players [player_name] = score
-                print(f"Congratulations*{player_name}* You guessed right, The word is: '{choosen_word}', Your score now is: '{score}'pts, You have '{attempts}' attempts now.")
-                chosen_words.append(choosen_word)
+                print(f"Congratulations*{player_name}* You guessed right, The word is: '{chosen_word}', Your score now is: '{score}'pts, You have '{attempts}' attempts now.")
+                chosen_words.append(chosen_word)
                 break
             
         if score > 200:
@@ -196,7 +202,7 @@ def hangman_game(dic):
             break
         
         save_players_data("playersdata.txt", players)
-    
+
 words = load_game_data("gamedata.txt")    
 players = load_players_data("playersdata.txt")
 hangman_game(words)
