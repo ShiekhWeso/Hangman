@@ -2,4 +2,4 @@ Weso: 196
 Ror: 160
 mariam: 110
 Niggro: 55
-weso: 60
+weso: 72

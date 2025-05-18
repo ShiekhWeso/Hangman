@@ -79,11 +79,13 @@ async def hangman_game(dic):
     chosen_words = []
     score = 0
     
-    if not words:
+    if not dic:
         print("No game data available.")
         return
     else:  
         print("Game data loaded successfully.")
+        
+    players = load_players_data("playersdata.txt")
     if not players:
         print("No players data available.")
         return
@@ -113,7 +115,7 @@ async def hangman_game(dic):
     print(f"You have '{intitial_attempts}' attempts to guess the word.")
     attempts = intitial_attempts
     
-    categories = [i for i in words.keys()]    
+    categories = [i for i in dic.keys()]    
     while attempts > 0:
         
         chosen_category = random.choice(categories)
@@ -203,6 +205,9 @@ async def hangman_game(dic):
         
         save_players_data("playersdata.txt", players)
 
-words = load_game_data("gamedata.txt")    
-players = load_players_data("playersdata.txt")
-hangman_game(words)
+def main():
+    words = load_game_data("gamedata.txt")
+    asyncio.run(hangman_game(words))
+    
+if __name__ == "__main__":
+    main()
