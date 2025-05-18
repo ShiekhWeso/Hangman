@@ -1,5 +1,8 @@
 # Guess the word game
 # Color-coded Feedback
+
+# Error when time rans out.
+
 import sys
 import random
 import asyncio
